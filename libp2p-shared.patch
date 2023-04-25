@@ -1,0 +1,42 @@
+--- libp2p-5e65679ae54d0f9fa412ab36289eb2255e341625/Makefile.orig	2022-07-06 03:05:02.000000000 +0200
++++ libp2p-5e65679ae54d0f9fa412ab36289eb2255e341625/Makefile	2023-04-25 17:12:09.635765402 +0200
+@@ -12,6 +12,7 @@ libp2p_HDRS = \
+ 
+ libp2p_OBJS = \
+ 	p2p_api.o \
++	v210.o \
+ 	simd/cpuinfo_x86.o \
+ 	simd/p2p_simd.o \
+ 	simd/p2p_sse41.o
+@@ -21,13 +22,26 @@ ifeq ($(SIMD), 1)
+   MY_CPPFLAGS := -DP2P_SIMD $(MY_CPPFLAGS)
+ endif
+ 
+-all: libp2p.a
++all: libp2p.la
+ 
+-libp2p.a: $(libp2p_OBJS)
+-	ar rcs $@ $^
++includedir = /usr/include
++libdir = /usr/lib
++libp2p_LOBJS = $(libp2p_OBJS:.o=.lo)
+ 
+-%.o: %.cpp $(znedi3_HDRS) $(testapp_HDRS) $(vsxx_HDRS)
+-	$(CXX) -c $(EXTRA_CXXFLAGS) $(MY_CXXFLAGS) $(MY_CPPFLAGS) $< -o $@
++ifeq ($(SIMD), 1)
++  simd/p2p_sse41.lo: EXTRA_CXXFLAGS := -msse4.1
++endif
++
++libp2p.la: $(libp2p_LOBJS)
++	libtool --tag=CXX --mode=link $(CXX) $(MY_LDFLAGS) $(MY_CXXFLAGS) -o $@ $^ -rpath $(libdir)
++
++%.lo: %.cpp $(znedi3_HDRS) $(testapp_HDRS) $(vsxx_HDRS)
++	libtool --tag=CXX --mode=compile $(CXX) -c $(EXTRA_CXXFLAGS) $(MY_CXXFLAGS) $(MY_CPPFLAGS) $< -o $@
++
++install:
++	install -d $(DESTDIR)$(libdir) $(DESTDIR)$(includedir)
++	install -m644 p2p.h p2p_api.h $(DESTDIR)$(includedir)
++	libtool --mode=install install libp2p.la $(DESTDIR)$(libdir)
+ 
+ clean:
+ 	rm -f *.a *.o *.so simd/*.o

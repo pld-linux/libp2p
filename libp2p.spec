@@ -18,8 +18,10 @@ License:	WTFPL v2
 Group:		Libraries
 Source0:	https://github.com/sekrit-twc/libp2p/archive/%{gitref}/%{name}-%{snap}.tar.gz
 # Source0-md5:	663e2005ffe0eecea2cc9336e0b789e4
+Patch0:		%{name}-shared.patch
 URL:		https://github.com/sekrit-twc/libp2p
 BuildRequires:	libstdc++-devel >= 6:5
+BuildRequires:	libtool >= 2:1.5
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -65,6 +67,7 @@ Statyczna biblioteka libp2p.
 
 %prep
 %setup -q -n %{name}-%{gitref}
+%patch0 -p1
 
 %build
 %{__make} \
@@ -73,27 +76,20 @@ Statyczna biblioteka libp2p.
 	CPPFLAGS="%{rpmcppflags}" \
 	LDFLAGS="%{rpmldflags}" \
 %if %{with simd}
-	SIMD=1
+	SIMD=1 \
 %endif
+	libdir=%{_libdir}
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{%{_libdir},%{_includedir}}
 
-%if %{with shared}
 %{__make} install \
-	DESTDIR=$RPM_BUILD_ROOT
-
-%{__rm} $RPM_BUILD_ROOT%{_libdir}/libp2p.la
-%else
-cp -p libp2p.a $RPM_BUILD_ROOT%{_libdir}
-cp -p p2p.h p2p_api.h $RPM_BUILD_ROOT%{_includedir}
-%endif
+	DESTDIR=$RPM_BUILD_ROOT \
+	includedir=%{_includedir} \
+	libdir=%{_libdir}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
-
-%if %{with shared}
 
 %post	-p /sbin/ldconfig
 %postun	-p /sbin/ldconfig
@@ -114,13 +110,3 @@ rm -rf $RPM_BUILD_ROOT
 %files static
 %defattr(644,root,root,755)
 %{_libdir}/libp2p.a
-
-%else
-
-%files devel
-%defattr(644,root,root,755)
-%{_libdir}/libp2p.a
-%{_includedir}/p2p.h
-%{_includedir}/p2p_api.h
-
-%endif
