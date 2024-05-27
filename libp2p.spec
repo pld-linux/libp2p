@@ -1,4 +1,3 @@
-# TODO: shared library
 #
 # Conditional build:
 %bcond_with	simd		# SSE4.1 instructions (runtime detected by cpuid)
@@ -10,16 +9,16 @@ Summary:	Library to pack/unpack pixels
 Summary(pl.UTF-8):	Biblioteka do pakowania/rozpakowywania pikseli
 Name:		libp2p
 Version:	0
-%define	gitref	5e65679ae54d0f9fa412ab36289eb2255e341625
-%define	snap	20220707
+%define	gitref	f52c14efc88c
+%define	snap	20240415
 %define	rel	1
 Release:	0.%{snap}.%{rel}
 License:	WTFPL v2
 Group:		Libraries
-Source0:	https://github.com/sekrit-twc/libp2p/archive/%{gitref}/%{name}-%{snap}.tar.gz
-# Source0-md5:	663e2005ffe0eecea2cc9336e0b789e4
+Source0:	https://bitbucket.org/the-sekrit-twc/libp2p/get/%{gitref}.tar.gz#/%{name}-%{gitref}.tar.gz
+# Source0-md5:	12d82bf59fc7408107a21678dff40385
 Patch0:		%{name}-shared.patch
-URL:		https://github.com/sekrit-twc/libp2p
+URL:		https://bitbucket.org/the-sekrit-twc/libp2p
 BuildRequires:	libstdc++-devel >= 6:5
 BuildRequires:	libtool >= 2:1.5
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -66,7 +65,7 @@ Static libp2p library.
 Statyczna biblioteka libp2p.
 
 %prep
-%setup -q -n %{name}-%{gitref}
+%setup -q -n the-sekrit-twc-%{name}-%{gitref}
 %patch0 -p1
 
 %build

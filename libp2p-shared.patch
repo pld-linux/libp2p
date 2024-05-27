@@ -1,5 +1,5 @@
---- libp2p-5e65679ae54d0f9fa412ab36289eb2255e341625/Makefile.orig	2022-07-06 03:05:02.000000000 +0200
-+++ libp2p-5e65679ae54d0f9fa412ab36289eb2255e341625/Makefile	2023-04-25 17:12:09.635765402 +0200
+--- the-sekrit-twc-libp2p-f52c14efc88c/Makefile.orig	2024-04-14 22:53:11.000000000 +0200
++++ the-sekrit-twc-libp2p-f52c14efc88c/Makefile	2024-05-27 22:04:11.390564937 +0200
 @@ -12,6 +12,7 @@ libp2p_HDRS = \
  
  libp2p_OBJS = \
@@ -20,9 +20,7 @@
 +includedir = /usr/include
 +libdir = /usr/lib
 +libp2p_LOBJS = $(libp2p_OBJS:.o=.lo)
- 
--%.o: %.cpp $(znedi3_HDRS) $(testapp_HDRS) $(vsxx_HDRS)
--	$(CXX) -c $(EXTRA_CXXFLAGS) $(MY_CXXFLAGS) $(MY_CPPFLAGS) $< -o $@
++ 
 +ifeq ($(SIMD), 1)
 +  simd/p2p_sse41.lo: EXTRA_CXXFLAGS := -msse4.1
 +endif
@@ -30,9 +28,11 @@
 +libp2p.la: $(libp2p_LOBJS)
 +	libtool --tag=CXX --mode=link $(CXX) $(MY_LDFLAGS) $(MY_CXXFLAGS) -o $@ $^ -rpath $(libdir)
 +
-+%.lo: %.cpp $(znedi3_HDRS) $(testapp_HDRS) $(vsxx_HDRS)
++%.lo: %.cpp $(libp2p_HDRS)
 +	libtool --tag=CXX --mode=compile $(CXX) -c $(EXTRA_CXXFLAGS) $(MY_CXXFLAGS) $(MY_CPPFLAGS) $< -o $@
-+
+ 
+-%.o: %.cpp $(libp2p_HDRS)
+-	$(CXX) -c $(EXTRA_CXXFLAGS) $(MY_CXXFLAGS) $(MY_CPPFLAGS) $< -o $@
 +install:
 +	install -d $(DESTDIR)$(libdir) $(DESTDIR)$(includedir)
 +	install -m644 p2p.h p2p_api.h $(DESTDIR)$(includedir)
