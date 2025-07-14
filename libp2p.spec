@@ -66,7 +66,7 @@ Statyczna biblioteka libp2p.
 
 %prep
 %setup -q -n the-sekrit-twc-%{name}-%{gitref}
-%patch0 -p1
+%patch -P0 -p1
 
 %build
 %{__make} \
